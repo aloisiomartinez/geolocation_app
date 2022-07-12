@@ -1,16 +1,18 @@
 import 'package:geolocator/geolocator.dart';
 
 class Geolocation {
-  bool _hasPermission(locationPermission) {
+  bool _hasPermission(LocationPermission locationPermission) {
     return locationPermission == LocationPermission.whileInUse ||
         locationPermission == LocationPermission.always;
   }
 
-  Future<bool> checkPermission() {
-    return Geolocator.checkPermission().then(_hasPermission);
+  Future<bool> checkPermission() async {
+    final locationPermission = await Geolocator.checkPermission();
+    return _hasPermission(locationPermission);
   }
 
-  Future<bool> requestPermission() {
-    return Geolocator.requestPermission().then(_hasPermission);
+  Future<bool> requestPermission() async {
+    final locationPermission = await Geolocator.requestPermission();
+    return _hasPermission(locationPermission);
   }
 }

@@ -58,12 +58,11 @@ class _WonderfulCitiesState extends State<WonderfulCities> {
               title: Strings.errorLocationPermissionTitle,
               description: Strings.errorLocationPermissionDescription,
               actionText: Strings.givePermission,
-              action: () {
-                geolocation.requestPermission().then((hasPermission) {
-                  setState(() {
+              action: () async {
+                final hasPermission = await geolocation.requestPermission();
+                setState(() {
                     hasLocationPermissionFuture = Future.value(hasPermission);
                   });
-                });
               },
             );
           }
