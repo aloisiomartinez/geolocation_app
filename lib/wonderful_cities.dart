@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-//import 'package:geolocation_app/components/geolocation_error.dart';
+import 'package:geolocation_app/components/geolocation_error.dart';
 import 'package:geolocation_app/resources/strings.dart';
 import 'package:geolocation_app/city_list.dart';
 import 'package:geolocation_app/geolocation.dart';
@@ -53,19 +53,19 @@ class _WonderfulCitiesState extends State<WonderfulCities> {
             if (hasPermission != null && hasPermission) {
               return const CityList();
             }
-            // return GeolocationError(
-            //   icon: Icons.lock,
-            //   title: Strings.errorLocationPermissionTitle,
-            //   description: Strings.errorLocationPermissionDescription,
-            //   actionText: Strings.givePermission,
-            //   action: () {
-            //     geolocation.requestPermission().then((hasPermission) {
-            //       setState(() {
-            //         hasLocationPermissionFuture = Future.value(hasPermission);
-            //       });
-            //     });
-            //   },
-            // );
+            return GeolocationError(
+              icon: Icons.lock,
+              title: Strings.errorLocationPermissionTitle,
+              description: Strings.errorLocationPermissionDescription,
+              actionText: Strings.givePermission,
+              action: () {
+                geolocation.requestPermission().then((hasPermission) {
+                  setState(() {
+                    hasLocationPermissionFuture = Future.value(hasPermission);
+                  });
+                });
+              },
+            );
           }
           return const Center(child: CircularProgressIndicator());
         },
