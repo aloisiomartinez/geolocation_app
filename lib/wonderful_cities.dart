@@ -47,11 +47,11 @@ class _WonderfulCitiesState extends State<WonderfulCities> {
       body: FutureBuilder<bool>(
         future: hasLocationPermissionFuture,
         builder: (context, snapshot) {
-          debugPrint(snapshot.toString());
+          debugPrint('Permission: $snapshot');
           if (snapshot.connectionState == ConnectionState.done) {
             final hasPermission = snapshot.data;
             if (hasPermission != null && hasPermission) {
-              return const CityList();
+              return CityList(geolocation: geolocation);
             }
             return GeolocationError(
               icon: Icons.lock,
@@ -61,8 +61,8 @@ class _WonderfulCitiesState extends State<WonderfulCities> {
               action: () async {
                 final hasPermission = await geolocation.requestPermission();
                 setState(() {
-                    hasLocationPermissionFuture = Future.value(hasPermission);
-                  });
+                  hasLocationPermissionFuture = Future.value(hasPermission);
+                });
               },
             );
           }
