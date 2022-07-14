@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:geolocation_app/components/city_distance.dart';
+import 'package:geolocation_app/components/geolocation_error.dart';
 import 'package:geolocation_app/components/my_location.dart';
 import 'package:geolocation_app/geolocation.dart';
 import 'package:geolocation_app/models/city_distance.dart';
+import 'package:geolocation_app/models/exceptions.dart';
 import 'package:geolocation_app/models/location.dart';
+import 'package:geolocation_app/resources/strings.dart';
 import 'package:geolocation_app/utils/city_helper.dart' as city_helper;
 
-import 'models/city.dart';
+import '../models/city.dart';
 
 class CityList extends StatefulWidget {
   const CityList({
@@ -20,13 +23,29 @@ class CityList extends StatefulWidget {
   _CityListState createState() => _CityListState();
 }
 
-class _CityListState extends State<CityList> {
+class _CityListState extends State<CityList> with WidgetsBindingObserver{
   final cities = List<City>.from(city_helper.cities);
+  bool requestedEnableGps = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance?.addObserver(this);
     widget.geolocation.listenToMyLocation();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed && requestedEnableGps) {
+      final isGpsEnabled = await widget.geolocation.isGpsEnabled();
+      if(isGpsEnabled) {
+        widget.geolocation.closeMyLocationStream();
+        setState(() {
+          widget.geolocation.listenToMyLocation();
+        });
+      }
+    }
   }
 
   @override
@@ -58,7 +77,19 @@ class _CityListState extends State<CityList> {
                 ],
               );
             }
-            // TODO: implementar a lógica de erros
+            if (snapshot.hasError) {
+              if (snapshot.error is GpsDisabledException) {
+                return GeolocationError(
+                    icon: Icons.location_off,
+                    title: Strings.errorGpsDisabledDescription,
+                    description: Strings.errorGpsDisabledDescription,
+                    actionText: Strings.enableLocationService,
+                    action: () {
+                      requestedEnableGps = true;
+                      widget.geolocation.openLocationSettings();
+                    });
+              }
+            }
           }
           return const Center(child: CircularProgressIndicator());
         },
@@ -77,6 +108,7 @@ class _CityListState extends State<CityList> {
   @override
   void dispose() {
     widget.geolocation.closeMyLocationStream();
+    WidgetsBinding.instance?.removeObserver(this);
     super.dispose();
   }
 }

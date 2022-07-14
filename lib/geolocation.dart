@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:geolocation_app/models/exceptions.dart';
 import 'package:geolocation_app/models/location.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -17,7 +18,15 @@ class Geolocation {
         .distinct((previous, next) =>
             previous.latitude == next.latitude &&
             previous.longitude == next.longitude)
+            .handleError((error) => _handleGpsDisabled(error),
+              test: ((error) => error is LocationServiceDisabledException)
+            )
         .listen((location) => _myLocationController.add(location));
+  }
+
+  void _handleGpsDisabled(LocationServiceDisabledException error) {
+    final exception = GpsDisabledException(error.toString());
+    _myLocationController.addError(exception);
   }
 
   void closeMyLocationStream() {
@@ -48,4 +57,8 @@ class Geolocation {
       locationB.longitude,
     );
   }
+
+  void openLocationSettings() => Geolocator.openLocationSettings();
+
+  Future<bool> isGpsEnabled() async => Geolocator.isLocationServiceEnabled();
 }

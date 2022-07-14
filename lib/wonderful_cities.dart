@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:geolocation_app/components/geolocation_error.dart';
 import 'package:geolocation_app/resources/strings.dart';
-import 'package:geolocation_app/city_list.dart';
+import 'package:geolocation_app/components/city_list.dart';
 import 'package:geolocation_app/geolocation.dart';
 
 class WonderfulCities extends StatefulWidget {
